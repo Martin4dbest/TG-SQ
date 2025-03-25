@@ -8,10 +8,10 @@ from os import path
 
 
 
-import test2  # Import test2 for handling users
+import app  # Import app for handling users
 
 # ✅ Get the logged-in user before any game logic
-username = test2.get_last_logged_in_user()  
+username = app.get_last_logged_in_user()  
 
 if username is None:
     print("Error: No user is logged in.")
@@ -983,29 +983,29 @@ while running:
             player.lives -= 1
             player.shield = 100
 
-    import test2  # Import test2.py
+    import app  # Import app.py
 
     if player.lives == 0 and not death_explosion.alive():
         pygame.quit()  # Properly close the game
 
-        username = test2.get_last_logged_in_user()  # Get logged-in username
+        username = app.get_last_logged_in_user()  # Get logged-in username
 
         if username:  # Make sure username is correct
             player_score = player.score  
             total_time_spent = int(time.time() - start_time)
 
             # Ensure only the current player's scores are saved
-            if test2.user_exists(username):  
-                test2.save_score(username, player_score, correct_answers, failed_quizzes, total_time_spent)
-                test2.update_scores(username, player_score)  
+            if app.user_exists(username):  
+                app.save_score(username, player_score, correct_answers, failed_quizzes, total_time_spent)
+                app.update_scores(username, player_score)  
             else:
                 print(f"Error: User {username} does not exist!")
 
             # Show correct leaderboard
-            test2.show_leaderboard(screen, username)
+            app.show_leaderboard(screen, username)
 
             # Redirect to planet selection
-            test2.show_planet_selection(username)
+            app.show_planet_selection(username)
 
             exit()  
         else:
@@ -1028,6 +1028,38 @@ while running:
     draw_text(screen, str(player.score), 18, WIDTH / 2, 10)
     draw_shield_bar(screen, 5, 5, player.shield)
     draw_lives(screen, WIDTH - 100, 5, player.lives, player_mini_img)
+
+
+
+        # Check if player reaches 3500 points without losing all lives
+    if player.score >= 3500 and player.lives > 0:
+        font = pygame.font.Font(None, 48)
+        text_surface = font.render(f"Congratulations {username}! You are the best!", True, (255, 215, 0))
+        text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+        screen.fill((0, 0, 0))  # Clear screen
+        screen.blit(text_surface, text_rect)
+        pygame.display.flip()
+
+        pygame.mixer.music.stop()  # Stop background music
+        # pygame.mixer.Sound(os.path.join(sound_folder, 'win_sound.wav')).play()  # Removed win sound
+
+        pygame.time.wait(5000)  # Show message for 5 seconds
+
+        # Save the player's score before exiting
+        if app.user_exists(username):
+            app.save_score(username, player.score, correct_answers, failed_quizzes, int(time.time() - start_time))
+            app.update_scores(username, player.score)  # Ensure score updates
+
+            pygame.time.wait(2000)  # Give time for the database update
+
+            # Show correct leaderboard **AFTER** updating scores
+            app.show_leaderboard(screen, username)
+
+        pygame.quit()
+        exit()
+
+
 
     pygame.display.flip()
 
