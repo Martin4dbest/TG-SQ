@@ -354,7 +354,7 @@ def show_leaderboard(screen, username):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif pygame.time.get_ticks() - start_time > 5000:  # Auto-close after 10 seconds
+                elif pygame.time.get_ticks() - start_time > 5000:  # Auto-close after 5 seconds
                     running = False
 
         pygame.display.quit()  # Close leaderboard but keep game running
