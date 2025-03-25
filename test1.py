@@ -155,6 +155,8 @@ def authenticate():
     confirm_password_label = tk.Label(frame, text="Confirm Password:", fg="white", bg="black", font=("Arial", 14))
     confirm_password_entry = tk.Entry(frame, font=("Arial", 14), show="*")
 
+
+
     # ✅ **Login Function**
     def login():
         global current_user
@@ -217,6 +219,7 @@ def authenticate():
     login_window.mainloop()
 
 
+
 def save_score(username, score, correct_answers, failed_quizzes, time_spent):
     """Save or update the player's score correctly without affecting others."""
     if not username:
@@ -225,13 +228,14 @@ def save_score(username, score, correct_answers, failed_quizzes, time_spent):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Ensure username exists
+    # Check if user exists
     c.execute("SELECT scores FROM users WHERE username = ?", (username,))
     result = c.fetchone()
 
     if result:
+        # User exists, update their score
         old_score = result[0] if result[0] is not None else 0
-        updated_score = old_score + score  # Ensure scores accumulate
+        updated_score = old_score + score  # Accumulate scores correctly
 
         c.execute("""
             UPDATE users 
@@ -242,8 +246,8 @@ def save_score(username, score, correct_answers, failed_quizzes, time_spent):
                 last_updated = CURRENT_TIMESTAMP
             WHERE username = ?
         """, (updated_score, correct_answers, failed_quizzes, time_spent, username))
-
     else:
+        # New user, insert their data
         c.execute("""
             INSERT INTO users (username, scores, correct_answers, failed_quizzes, time_spent, last_updated) 
             VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
@@ -251,8 +255,6 @@ def save_score(username, score, correct_answers, failed_quizzes, time_spent):
 
     conn.commit()
     conn.close()
-
-
 
 import subprocess
 import pygame
@@ -263,21 +265,18 @@ from PIL import Image, ImageTk
 
 
 
-
 def show_leaderboard(screen, username): 
     """Display the leaderboard ensuring only logged-in users are shown."""
-    import pygame
-    import sqlite3
-
     if not pygame.get_init():
         pygame.init()
 
     if screen is None or not pygame.display.get_surface():
-        screen = pygame.display.set_mode((800, 600))
+        screen = pygame.display.set_mode((1200, 800))
 
-    conn = sqlite3.connect("users.db")  # Ensure the database name is correct
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
+    # Fetch leaderboard correctly
     c.execute("""
         SELECT username, scores, correct_answers, failed_quizzes, time_spent 
         FROM users 
@@ -287,12 +286,9 @@ def show_leaderboard(screen, username):
     leaderboard_data = c.fetchall()
     conn.close()
 
-    print("Leaderboard Data Retrieved:", leaderboard_data)  # Debugging print
+    # Debugging print to verify fetched data
+    print("🔍 Leaderboard Data Retrieved:", leaderboard_data)
 
-    if not leaderboard_data:
-        print("⚠️ No data found in the leaderboard!")  # Check if the leaderboard is empty
-
-    # Render leaderboard
     screen.fill((30, 30, 40))
     font_title = pygame.font.Font(None, 40)
     font_header = pygame.font.Font(None, 30)
@@ -305,15 +301,14 @@ def show_leaderboard(screen, username):
     col_positions = [120, 200, 320, 420, 520, 620]
     row_height = 40
 
-    header_y = 120
+    # Render headers
     for i, header in enumerate(headers):
         text = font_header.render(header, True, (200, 200, 200))
-        screen.blit(text, (col_positions[i], header_y))
+        screen.blit(text, (col_positions[i], 120))
 
+    # Render leaderboard rows
     y_offset = 160
     for rank, (player, score, correct_answers, failed_quizzes, time_spent) in enumerate(leaderboard_data, start=1):
-        print(f"Rendering Player {player} with Score {score}")  # Debugging print
-
         time_str = f"{int(time_spent // 60)}m {int(time_spent % 60)}s"
         row_data = [f"{rank}.", player, str(score), str(correct_answers), str(failed_quizzes), time_str]
 
@@ -329,8 +324,7 @@ def show_leaderboard(screen, username):
 
     pygame.display.update()
     pygame.time.delay(5000)
-    pygame.quit()  # Close leaderboard after delay
-
+    pygame.quit()
 
 
 def update_scores(username, new_score):
@@ -361,6 +355,8 @@ def update_scores(username, new_score):
 
     conn.commit()
     conn.close()
+
+    
 
 def get_last_logged_in_user():
     """Retrieve the last logged-in user."""
