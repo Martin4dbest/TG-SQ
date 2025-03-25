@@ -8,10 +8,10 @@ from os import path
 
 
 
-import test1  # Import test1 for handling users
+import test2  # Import test2 for handling users
 
 # ✅ Get the logged-in user before any game logic
-username = test1.get_last_logged_in_user()  
+username = test2.get_last_logged_in_user()  
 
 if username is None:
     print("Error: No user is logged in.")
@@ -24,8 +24,12 @@ sound_folder = path.join(path.dirname(__file__), 'sounds')
 
 ###############################
 
-WIDTH = 1280  # Moderate width  
-HEIGHT = 720   # Standard HD resolution  
+
+
+WIDTH = 1400  # Wider but not fullscreen  
+HEIGHT = 800  # Slightly taller for better UI space  
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Apply new size
 
 
 FPS = 60
@@ -125,10 +129,10 @@ questions = [
     {"question": "What does CPU stand for in the context of computing?", "options": ["Central Processing Unit", "Computer Processing Unit", "Central Power Unit", "Center Power Unit"], "answer": "Central Processing Unit"},
     {"question": "What is the name of the closest planet to the Sun in our solar system?", "options": ["Mars", "Mercury", "Venus", "Earth"], "answer": "Mercury"},
     {"question": "Who is credited with inventing the World Wide Web?", "options": ["Tim Berners-Lee", "Nikola Tesla", "Tim Cook", "Al Gore"], "answer": "Tim Berners-Lee"},
-    {"question": "What does DNA stand for in biology?", "options": ["Ribonucleic Acid", "Deoxyribonucleic Acid", "Deoxyribonucleic Acid", "None of the above"], "answer": "Deoxyribonucleic Acid"},
+    {"question": "What does DNA stand for in biology?", "options": ["Ribonucleic Acid", "Deoxyribonucleic Acid", "Deoxyribonuclea Acid", "None of the above"], "answer": "Deoxyribonucleic Acid"},
     {"question": "Which gas do plants use for photosynthesis?", "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], "answer": "Carbon Dioxide"},
     {"question": "What is the chemical symbol for water?", "options": ["H2O", "O2", "CO", "H2O2"], "answer": "H2O"},
-    {"question": "What is the study of Earth's atmosphere called?", "options": ["Geology", "Meteorology", "Oceanography", "Meteorology"], "answer": "Meteorology"},
+    {"question": "What is the study of Earth's atmosphere called?", "options": ["Geology", "Meteorology", "Oceanography", "Earthmology"], "answer": "Meteorology"},
     {"question": "What is the fastest animal on land?", "options": ["Leopard", "Lion", "Cheetah", "Giraffe"], "answer": "Cheetah"},
     {"question": "Which is a basic quantity?", "options": ["Mass", "Force", "Density", "Weight"], "answer": "Mass"},
     {"question": "What is the SI unit of force?", "options": ["Joule", "Watt", "Newton", "Pascal"], "answer": "Newton"},
@@ -878,13 +882,7 @@ background_index = 0
 next_background_index = 1
 background_x = 0
 
-"""
-# Load sounds
-sound_folder = "sound_folder"
-pygame.mixer.music.load(os.path.join(sound_folder, 'space2.wav'))
-pygame.mixer.music.play(-1)
-"
-"""
+
 running = True
 menu_display = True
 start_time = time.time()
@@ -985,29 +983,29 @@ while running:
             player.lives -= 1
             player.shield = 100
 
-    import test1  # Import test1.py
+    import test2  # Import test2.py
 
     if player.lives == 0 and not death_explosion.alive():
         pygame.quit()  # Properly close the game
 
-        username = test1.get_last_logged_in_user()  # Get logged-in username
+        username = test2.get_last_logged_in_user()  # Get logged-in username
 
         if username:  # Make sure username is correct
             player_score = player.score  
             total_time_spent = int(time.time() - start_time)
 
             # Ensure only the current player's scores are saved
-            if test1.user_exists(username):  
-                test1.save_score(username, player_score, correct_answers, failed_quizzes, total_time_spent)
-                test1.update_scores(username, player_score)  
+            if test2.user_exists(username):  
+                test2.save_score(username, player_score, correct_answers, failed_quizzes, total_time_spent)
+                test2.update_scores(username, player_score)  
             else:
                 print(f"Error: User {username} does not exist!")
 
             # Show correct leaderboard
-            test1.show_leaderboard(screen, username)
+            test2.show_leaderboard(screen, username)
 
             # Redirect to planet selection
-            test1.show_planet_selection(username)
+            test2.show_planet_selection(username)
 
             exit()  
         else:
