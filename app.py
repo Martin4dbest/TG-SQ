@@ -278,13 +278,11 @@ def save_score(username, score, correct_answers, failed_quizzes, time_spent):
     conn.close()
 
 
-
 def show_leaderboard(screen, username):
     """Display the leaderboard with users having scores of 1500 and above."""
-
     if not pygame.get_init():
         pygame.init()
-        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # Fullscreen mode
+        screen = pygame.display.set_mode((1400, 800)) 
 
     try:
         with sqlite3.connect(DB_PATH) as conn:
@@ -297,35 +295,30 @@ def show_leaderboard(screen, username):
             """)
             leaderboard = c.fetchall()
 
-        if not screen:
-            return  # Prevent errors if screen is invalid
-
-        screen.fill((15, 15, 35))  # Darker background for better visibility
+        screen.fill((15, 15, 35))  
         pygame.font.init()
 
         title_font = pygame.font.Font(None, 50)
         header_font = pygame.font.Font(None, 36)
         entry_font = pygame.font.Font(None, 30)
 
-        # 🏆 Title (Centered)
+        # Title
         title_text = title_font.render(" LEADERBOARD ", True, (255, 215, 0))  
-        title_x = (screen.get_width() - title_text.get_width()) // 2  # Centering title
+        title_x = (screen.get_width() - title_text.get_width()) // 2  
         screen.blit(title_text, (title_x, 20))
 
-        # 📊 Table Headers
-                # 📊 Table Headers
+        # Headers
         headers = ["Rank", "Player", "Score", "Correct Answers", "Incorrect Answers"]
-        header_positions = [100, 300, 500, 750, 1050]  # Increased spacing
-
+        header_positions = [100, 300, 500, 750, 1050]  
 
         for i, header in enumerate(headers):
             header_text = header_font.render(header, True, (200, 200, 255))
             screen.blit(header_text, (header_positions[i], 80))
 
-        # 📊 Leaderboard Entries
+        # Leaderboard Entries
         if not leaderboard:
             msg = entry_font.render("No players have reached 1500 points yet.", True, (255, 255, 255))
-            screen.blit(msg, (screen.get_width() // 2 - 150, 140))  # Centered message
+            screen.blit(msg, (screen.get_width() // 2 - 150, 140))
         else:
             y_offset = 120  
             for idx, (user, score, correct, wrong) in enumerate(leaderboard, 1):
@@ -335,9 +328,9 @@ def show_leaderboard(screen, username):
                     f"{idx}.", user, f"{score}", f"{correct}", f"{wrong}"
                 ]
                 for i, value in enumerate(row_values):
-                    color = (255, 255, 255)  # Default white text
+                    color = (255, 255, 255)
                     if i == 1 and marker:  
-                        color = (0, 255, 0)  # Highlight current user
+                        color = (0, 255, 0)  
                         value += marker  
 
                     entry_text = entry_font.render(value, True, color)
@@ -347,17 +340,17 @@ def show_leaderboard(screen, username):
 
         pygame.display.flip()
 
-        # ✅ Event Loop to Close Leaderboard After a While
+        # Event Loop to Close Leaderboard After a While
         running = True
-        start_time = pygame.time.get_ticks()  # Track time
+        start_time = pygame.time.get_ticks()  
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                elif pygame.time.get_ticks() - start_time > 5000:  # Auto-close after 5 seconds
+                elif pygame.time.get_ticks() - start_time > 5000:  
                     running = False
 
-        pygame.display.quit()  # Close leaderboard but keep game running
+        pygame.display.quit()  
 
     except pygame.error as e:
         print(f"⚠️ Pygame error: {e}")
@@ -430,8 +423,10 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 
+
 def show_planet_selection(username):
-    global category_window, selected_category
+    """Display the planet selection screen."""
+    global category_window
 
     category_window = tk.Tk()
     category_window.title("Select a Planet")
@@ -454,22 +449,23 @@ def show_planet_selection(username):
               font=("Arial", 18, "bold"), foreground="white", background="black").pack(pady=10)
 
     def start_game_after_selection(planet):
+        """Start the game after selecting a planet."""
         global selected_category
         selected_category = planet
         category_window.destroy()  # Close selection window
-        start_game(username, selected_category)  # Ensure the correct planet is passed
+        start_game(username, selected_category)  # Start game with selected planet
 
     # Planets & Their Colors
     planets = {
-        "Mercury": "#808080",  # Gray
-        "Venus": "#FFD700",  # Yellow-Gold
-        "Earth": "#2E8B57",  # Blue-Green
-        "Mars": "#FF4500",  # Red-Orange
-        "Jupiter": "#D2691E",  # Brown-Orange
-        "Saturn": "#DAA520",  # Gold
-        "Uranus": "#40E0D0",  # Cyan
-        "Neptune": "#0000CD",  # Dark Blue
-        "Pluto": "#A52A2A"  # Light Brown
+        "Mercury": "#808080",
+        "Venus": "#FFD700",
+        "Earth": "#2E8B57",
+        "Mars": "#FF4500",
+        "Jupiter": "#D2691E",
+        "Saturn": "#DAA520",
+        "Uranus": "#40E0D0",
+        "Neptune": "#0000CD",
+        "Pluto": "#A52A2A"
     }
 
     # Create a frame to hold the buttons
@@ -477,36 +473,49 @@ def show_planet_selection(username):
     button_frame.pack(pady=20)
 
     # Arrange buttons in a 3-column grid
-    rows, cols = 3, 3
     for index, (planet, color) in enumerate(planets.items()):
-        row = index // cols  # Determine row
-        col = index % cols  # Determine column
+        row = index // 3  
+        col = index % 3  
         tk.Button(button_frame, text=planet, font=("Arial", 14, "bold"),
                   width=12, height=2, bg=color, fg="white",
                   bd=2, relief="raised", activebackground=color,
                   activeforeground="white", cursor="hand2",
                   command=lambda p=planet: start_game_after_selection(p)).grid(row=row, column=col, padx=15, pady=10)
 
-    # Logout button (top-right)
+    # Leaderboard Button
+    leaderboard_button = tk.Button(category_window, text="🏆 View Leaderboard", font=("Arial", 14, "bold"),
+                                   bg="#FFD700", fg="black", bd=3, relief="raised",
+                                   activebackground="#FFD700", activeforeground="black", cursor="hand2",
+                                   command=lambda: show_leaderboard_screen(username))
+    leaderboard_button.pack(pady=20)
+
+    # Logout Button
     logout_button = tk.Button(category_window, text="Logout", font=("Arial", 14, "bold"),
                               bg="red", fg="white", bd=0, activebackground="red",
                               activeforeground='white', cursor="hand2",
                               command=logout)
-    logout_button.place(relx=0.85, rely=0.05)  # ✅ Top-right corner
+    logout_button.place(relx=0.85, rely=0.05)
 
     category_window.mainloop()
+
+    
+def show_leaderboard_screen(username):
+    """Wrapper function to open the leaderboard using Pygame."""
+    pygame.init()
+    screen = pygame.display.set_mode((1400, 800))  # Larger window but not fullscreen
+    show_leaderboard(screen, username)  # Pass screen to leaderboard function
+
+
+
 
 
 def start_game(username, planet):
     
-    subprocess.run(["python", "comictravel.py", str(username), str(planet)])
+    #subprocess.run(["python", "comictravel.py", str(username), str(planet)])
+    subprocess.Popen(["python", "comictravel.py", str(username), str(planet)])
+
     
-    
-    # Ensure show_leaderboard is called with the correct number of arguments
-    #show_leaderboard(screen, username, user_score=0, time_spent=0)  # Default values added
-    #
-    # show_leaderboard(screen, username)  
-    
+
     show_planet_selection(username)  # Return to planet selection
 
 

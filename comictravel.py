@@ -7,6 +7,8 @@ import random
 from os import path
 
 
+total_correct_answers = 0
+total_failed_quizzes = 0
 
 import app  # Import app for handling users
 
@@ -939,9 +941,14 @@ while running:
     # Check if 20 seconds have passed to trigger quiz
     elapsed_time = time.time() - start_time
     if elapsed_time >= 20:
-        correct_answers, failed_quizzes, total_time_spent = quiz_window(username)
+        correct, failed, time_spent = quiz_window(username)
+
+        # Accumulate total correct and failed answers
+        total_correct_answers += correct
+        total_failed_quizzes += failed
 
         start_time = time.time()
+
 
     # Game loop continues
     clock.tick(FPS)
@@ -986,18 +993,17 @@ while running:
     import app  # Import app.py
 
     if player.lives == 0 and not death_explosion.alive():
-        pygame.quit()  # Properly close the game
+        pygame.quit()
+        username = app.get_last_logged_in_user()
 
-        username = app.get_last_logged_in_user()  # Get logged-in username
-
-        if username:  # Make sure username is correct
+        if username:
             player_score = player.score  
             total_time_spent = int(time.time() - start_time)
 
-            # Ensure only the current player's scores are saved
             if app.user_exists(username):  
-                app.save_score(username, player_score, correct_answers, failed_quizzes, total_time_spent)
-                app.update_scores(username, player_score)  
+                app.save_score(username, player_score, total_correct_answers, total_failed_quizzes, total_time_spent)
+                app.update_scores(username, player_score)
+    
             else:
                 print(f"Error: User {username} does not exist!")
 
@@ -1048,7 +1054,7 @@ while running:
 
         # Save the player's score before exiting
         if app.user_exists(username):
-            app.save_score(username, player.score, correct_answers, failed_quizzes, int(time.time() - start_time))
+            app.save_score(username, player.score, total_correct_answers, total_failed_quizzes, int(time.time() - start_time))
             app.update_scores(username, player.score)  # Ensure score updates
 
             pygame.time.wait(2000)  # Give time for the database update
