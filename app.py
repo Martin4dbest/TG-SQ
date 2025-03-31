@@ -452,8 +452,16 @@ def show_planet_selection(username):
         """Start the game after selecting a planet."""
         global selected_category
         selected_category = planet
-        category_window.destroy()  # Close selection window
-        start_game(username, selected_category)  # Start game with selected planet
+
+        # Destroy the Tkinter window before starting the game
+        category_window.quit()  # Gracefully exit the Tkinter loop
+        category_window.destroy()  # Properly close the window
+
+        # Now start the game with the selected planet
+        #subprocess.Popen(["python", "comictravel.py", str(username), str(planet)])
+        process = subprocess.Popen(["python", "comictravel.py", str(username), str(planet)])
+        process.wait()  # This makes app.py wait until comictravel.py closes
+
 
     # Planets & Their Colors
     planets = {
@@ -498,6 +506,7 @@ def show_planet_selection(username):
 
     category_window.mainloop()
 
+
     
 def show_leaderboard_screen(username):
     """Wrapper function to open the leaderboard using Pygame."""
@@ -507,16 +516,6 @@ def show_leaderboard_screen(username):
 
 
 
-
-
-def start_game(username, planet):
-    
-    #subprocess.run(["python", "comictravel.py", str(username), str(planet)])
-    subprocess.Popen(["python", "comictravel.py", str(username), str(planet)])
-
-    
-
-    show_planet_selection(username)  # Return to planet selection
 
 
     
