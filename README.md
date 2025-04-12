@@ -36,7 +36,7 @@ import sqlite3
 
 conn = sqlite3.connect("myusers.db")  
 c = conn.cursor()
-c.execute("DELETE FROM users")  # Wipes all user data and scores
+c.execute("DELETE FROM users")  
 conn.commit()
 conn.close()
 
