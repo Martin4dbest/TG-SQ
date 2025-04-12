@@ -290,7 +290,7 @@ def show_leaderboard(screen, username):
             c.execute("""
                 SELECT username, scores, correct_answers, failed_quizzes
                 FROM users 
-                WHERE scores >= 1500
+                WHERE scores >= 2500
                 ORDER BY scores DESC
             """)
             leaderboard = c.fetchall()

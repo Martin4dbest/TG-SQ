@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-
 from __future__ import division
 import pygame
 import random
@@ -11,6 +9,7 @@ total_correct_answers = 0
 total_failed_quizzes = 0
 
 import app  # Import app for handling users
+
 
 # ✅ Get the logged-in user before any game logic
 username = app.get_last_logged_in_user()  
@@ -27,10 +26,12 @@ sound_folder = path.join(path.dirname(__file__), 'sounds')
 ###############################
 
 
-
+"""
 WIDTH = 1400  # Wider but not fullscreen  
 HEIGHT = 800  # Slightly taller for better UI space  
+"""
 
+WIDTH, HEIGHT = 1600, 900  
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Apply new size
 
 
@@ -430,9 +431,16 @@ def draw_text(surf, text, size, x, y, color=WHITE):
 def main_menu():
     global screen, dropdown_open, selected_planet
 
+    pygame.init()
+
+    
+      # Set your desired window size
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Initialize the window
+
     menu_song = pygame.mixer.music.load(path.join(sound_folder, "space1.mp3"))
     pygame.mixer.music.play(-1)
 
+    
     title = pygame.image.load(path.join(img_dir, "main2.png")).convert()
     title = pygame.transform.scale(title, (WIDTH, HEIGHT))
     
@@ -874,9 +882,29 @@ FPS = 60
 SCROLL_SPEED = 2  # Background scrolling speed
 TRANSITION_TIME = 2  # Time in seconds for transition
 
+"""
 # Create game window
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Journey")
+
+"""
+
+"""
+infoObject = pygame.display.Info()
+WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+pygame.display.set_caption("Space Journey")
+"""
+
+os.environ['SDL_VIDEO_CENTERED'] = '1'  # Optional: center the window
+
+infoObject = pygame.display.Info()
+WIDTH, HEIGHT = infoObject.current_w - 50, infoObject.current_h - 50
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Space Journey")
+
 
 # Load backgrounds and scale them
 backgrounds = [pygame.transform.scale(pygame.image.load(os.path.join('assets', f'pix{i}.jpg')), (WIDTH, HEIGHT)) for i in range(1, 10)]
@@ -1038,7 +1066,7 @@ while running:
 
 
         # Check if player reaches 3500 points without losing all lives
-    if player.score >= 3500 and player.lives > 0:
+    if player.score >= 4000 and player.lives > 0:
         font = pygame.font.Font(None, 48)
         text_surface = font.render(f"Congratulations {username}! You are the best!", True, (255, 215, 0))
         text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
@@ -1062,9 +1090,13 @@ while running:
             # Show correct leaderboard **AFTER** updating scores
             app.show_leaderboard(screen, username)
 
-        pygame.quit()
-        exit()
+        
+        # ✅ Return to planet selection, DO NOT QUIT
+        app.show_planet_selection(username)
+        menu_display = True
+        start_time = time.time()
 
+        continue 
 
 
     pygame.display.flip()
