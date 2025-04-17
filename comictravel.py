@@ -882,20 +882,7 @@ FPS = 60
 SCROLL_SPEED = 2  # Background scrolling speed
 TRANSITION_TIME = 2  # Time in seconds for transition
 
-"""
-# Create game window
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Space Journey")
 
-"""
-
-"""
-infoObject = pygame.display.Info()
-WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
-pygame.display.set_caption("Space Journey")
-"""
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # Optional: center the window
 

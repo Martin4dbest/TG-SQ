@@ -108,28 +108,29 @@ def create_database():
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# ✅ **Check if user exists (Case-insensitive)**
+
 def user_exists(username):
-    username = username.strip().lower()
+    username = username.strip()  # ⛔ Don't convert to lowercase
     with sqlite3.connect(DB_PATH) as conn:
         c = conn.cursor()
         c.execute("SELECT username FROM users WHERE username = ?", (username,))
-        return c.fetchone() is not None  # Returns True if user exists
+        return c.fetchone() is not None
 
 
-# ✅ **Validate User Login (Check Hashed Password)**
+
+# ✅ Validate User Login (Case-Sensitive Username)
 def validate_login(username, password):
-    username = username.strip().lower()
+    username = username.strip()  # ❌ No .lower()
     hashed_password = hash_password(password)
 
     with sqlite3.connect(DB_PATH) as conn:
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed_password))
-        return c.fetchone() is not None  # ✅ Return True if valid
+        return c.fetchone() is not None
 
 
 def register_user(username, password):
-    username = username.strip().lower()  # Ensure case-insensitivity
+    username = username.strip()  # ⛔ Don't convert to lowercase
     hashed_password = hash_password(password)
 
     try:
@@ -290,7 +291,7 @@ def show_leaderboard(screen, username):
             c.execute("""
                 SELECT username, scores, correct_answers, failed_quizzes
                 FROM users 
-                WHERE scores >= 2500
+                WHERE scores >= 200
                 ORDER BY scores DESC
             """)
             leaderboard = c.fetchall()
@@ -377,46 +378,63 @@ def update_scores(username, new_score):
             """, (username, new_score, datetime.now()))
 
         conn.commit()
+        
 
 
-def get_last_logged_in_user():
-    """Retrieve the last logged-in user and ensure it's updated."""
+
+
+
+def update_last_login(username):
+    """Update the last login time and the last logged-in user."""
     try:
         with sqlite3.connect(DB_PATH) as conn:
             c = conn.cursor()
-            c.execute("SELECT username FROM users ORDER BY last_login_time DESC LIMIT 1")
-            user = c.fetchone()
+            current_time = datetime.now().isoformat()  # Get the current time
+            # Update the last_login_time for the user
+            c.execute("""
+                UPDATE users
+                SET last_login_time = ?
+                WHERE username = ?
+            """, (current_time, username))
+            conn.commit()  # Save changes
+            print(f"✅ Updated last login time for {username} at {current_time}")
             
-            if user:
-                print(f"✅ Last logged-in user: {user[0]}")
-                return user[0]
-            else:
-                print("❌ No users found in the database.")
-                return None
+            # Update the "last logged-in user" field if necessary
+            c.execute("UPDATE settings SET value = ? WHERE key = 'last_logged_in_user'", (username,))
+            conn.commit()  # Ensure the last logged-in user is updated
+            print(f"✅ Updated last logged-in user to {username}")
+    except sqlite3.Error as e:
+        print(f"⚠️ Failed to update login time for {username}: {e}")
 
+def get_last_logged_in_user():
+    """Retrieve the last logged-in user."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            c = conn.cursor()
+            # Retrieve the last logged-in user from the settings table
+            c.execute("SELECT value FROM settings WHERE key = 'last_logged_in_user'")
+            result = c.fetchone()
+            if result:
+                return result[0]
+            else:
+                return None
     except sqlite3.Error as e:
         print(f"⚠️ Database Error: {e}")
         return None
 
-
-def update_last_login(username):
-    """Update the last login time when a user logs in."""
-    with sqlite3.connect(DB_PATH) as conn:
-        c = conn.cursor()
-        c.execute("""
-            UPDATE users
-            SET last_login_time = ?
-            WHERE username = ?
-        """, (datetime.now(), username))
-        conn.commit()
-
-
-# Call this function after login
 def handle_login(username):
-    """Handles user login and updates last login timestamp."""
-    update_last_login(username)
+    """Handles post-login logic and displays last logged-in user."""
+    update_last_login(username)  # Update the login time and last logged-in user
+    
+    # Immediately fetch the most recent logged-in user after the update
     last_user = get_last_logged_in_user()
-    print(f"Last logged-in user updated: {last_user}")
+    
+    if last_user:
+        print(f"Last logged-in user updated: {last_user}")
+    else:
+        print("No last logged-in user found.")
+
+
 
 
 import tkinter as tk
@@ -503,6 +521,51 @@ def show_planet_selection(username):
                               activeforeground='white', cursor="hand2",
                               command=logout)
     logout_button.place(relx=0.85, rely=0.05)
+
+
+        # Game Rules Function
+    
+    # Game Rules Function
+        # Game Rules Function
+    def show_game_rules():
+        rules_window = tk.Toplevel(category_window)
+        rules_window.title("Game Rules - Cosmo Trial")
+        rules_window.geometry("600x500")
+        rules_window.configure(bg="black")
+
+        rules_text = (
+            "🎯 Objective\n"
+            "Pilot your spaceship, dodge asteroids, shoot threats, and complete quizzes to reach the sun.\n\n"
+            "🕹 Controls\n"
+            "↑ Move Up\n↓ Move Down\n← Move Backward\n→ Move Forward\nSpacebar: Shoot asteroids\n\n"
+            "🧠 Quizzes\n"
+            "- Appear every 30 seconds\n"
+            "- Correct = Score boost\n"
+            "- 3 wrong in a row = Health penalty\n\n"
+            "💥 Gameplay\n"
+            "- Destroy asteroids & answer quizzes to earn points\n"
+            "- Collect Energy Orbs to restore health\n"
+            "- Only asteroid hits cost lives\n"
+            "- 3 Lives Total\n\n"
+            "🏆 Win: Score 4000 points\n💀 Game Over: Health = 0 or Lives = 0"
+        )
+
+        tk.Label(rules_window, text="Cosmo Trial - Game Rules", font=("Arial", 16, "bold"),
+                 fg="white", bg="black").pack(pady=10)
+
+        rules_box = tk.Text(rules_window, wrap="word", font=("Arial", 12),
+                            bg="#1c1c1c", fg="white", bd=0, padx=20, pady=10)
+        rules_box.insert("1.0", rules_text)
+        rules_box.config(state="disabled")
+        rules_box.pack(expand=True, fill="both", padx=20, pady=10)
+
+    # Game Rules Button
+    rules_button = tk.Button(category_window, text="📜 Game Rules", font=("Arial", 14, "bold"),
+                             bg="#1E90FF", fg="white", bd=3, relief="raised",
+                             activebackground="#1E90FF", activeforeground="white", cursor="hand2",
+                             command=show_game_rules)
+    rules_button.pack(pady=10)
+
 
     category_window.mainloop()
 
