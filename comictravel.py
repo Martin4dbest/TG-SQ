@@ -31,7 +31,7 @@ WIDTH = 1400  # Wider but not fullscreen
 HEIGHT = 800  # Slightly taller for better UI space  
 """
 
-WIDTH, HEIGHT = 1600, 900  
+WIDTH, HEIGHT = 1400, 700  
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Apply new size
 
 
