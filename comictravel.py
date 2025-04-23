@@ -801,13 +801,13 @@ missile_img = pygame.image.load(path.join(img_dir, 'missile.png')).convert_alpha
 # meteor_img = pygame.image.load(path.join(img_dir, 'meteorBrown_med1.png')).convert()
 meteor_images = []
 meteor_list = [
-    'meteorBrown_big1.png',
+    'bigobs3.png',
     'meteorBrown_big2.png', 
-    'meteorBrown_med1.png', 
+    'med1.png', 
     'meteorBrown_med3.png',
     'meteorBrown_small1.png',
     'meteorBrown_small2.png',
-    'meteorBrown_tiny1.png'
+    'tiny.png'
 ]
 
 for image in meteor_list:
