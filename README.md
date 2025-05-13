@@ -9,7 +9,7 @@
 ## 🎮 Gameplay  
 
 ### 🎯 Objective  
-Survive in space, defeat enemies, and score points while answering quizzes to boost your knowledge.  
+Survive in space, defeat enemies, and score points while answering quizzes to boost your knowledge and skills. 
 
 ### 🎮 Controls  
 - **⬆️⬇️⬅️➡️ Arrow Keys** - Move the player spaceship  
