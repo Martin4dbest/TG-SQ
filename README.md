@@ -13,8 +13,8 @@ Survive in space, defeat enemies, and score points while answering quizzes to bo
 
 ### 🎮 Controls  
 - **⬆️⬇️⬅️➡️ Arrow Keys** - Move the player spaceship  
-- **Spacebar** - Fire bullets  
-- **ESC** - Quit the game  
+- **Spacebar** - Fire bullets. 
+- **ESC** - Quit the game.
 
 ### 🏆 Scoring System  
 - Defeat enemies to earn points  
